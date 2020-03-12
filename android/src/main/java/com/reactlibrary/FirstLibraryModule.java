@@ -41,11 +41,11 @@ import java.util.HashMap;
 import java.util.TimeZone;
 import android.util.Log;
 
-public class RNFirstLibraryModule extends ReactContextBaseJavaModule {
+public class FirstLibraryModule extends ReactContextBaseJavaModule {
 
     private final ReactContext reactContext;
 
-      public RNFirstLibraryModule(ReactApplicationContext reactContext) {
+      public FirstLibraryModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
       }
@@ -58,38 +58,40 @@ public class RNFirstLibraryModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void saveEvent(final String title, final ReadableMap details, final Promise promise) {
 
+        if (ContextCompat.checkSelfPermission(getCurrentActivity(), Manifest.permission.WRITE_CALENDAR)
+                == PackageManager.PERMISSION_GRANTED) {
+                ContentResolver cr = reactContext.getContentResolver();
+                ContentValues values = new ContentValues();
 
-        ContentResolver cr = reactContext.getContentResolver();
-        ContentValues values = new ContentValues();
+                values.put(CalendarContract.Events.DTSTART, (long)details.getDouble("startDate"));
+                values.put(CalendarContract.Events.DTEND, (long)details.getDouble("endDate"));
+                values.put(CalendarContract.Events.TITLE, title);
+                values.put(CalendarContract.Events.DESCRIPTION, details.getString("description"));
 
-        values.put(CalendarContract.Events.DTSTART, (long)details.getDouble("startDate"));
-        values.put(CalendarContract.Events.DTEND, (long)details.getDouble("endDate"));
-        values.put(CalendarContract.Events.TITLE, title);
-        values.put(CalendarContract.Events.DESCRIPTION, details.getString("description"));
+                TimeZone timeZone = TimeZone.getDefault();
+                values.put(CalendarContract.Events.EVENT_TIMEZONE, timeZone.getID());
 
-        TimeZone timeZone = TimeZone.getDefault();
-        values.put(CalendarContract.Events.EVENT_TIMEZONE, timeZone.getID());
+                values.put(CalendarContract.Events.CALENDAR_ID, 1);
 
-        values.put(CalendarContract.Events.CALENDAR_ID, 1);
-
-        Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
-        promise.resolve("done");
-
+                Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
+                promise.resolve("done");
+        }
     }
 
     @ReactMethod
         public void deleteEvent(String entryID, final Promise promise) {
+            if (ContextCompat.checkSelfPermission(getCurrentActivity(), Manifest.permission.WRITE_CALENDAR)
+                == PackageManager.PERMISSION_GRANTED) {
 
+                    ContentResolver cr = reactContext.getContentResolver();
+                    int iNumRowsDeleted = 0;
 
-            ContentResolver cr = reactContext.getContentResolver();
-            int iNumRowsDeleted = 0;
+                    Uri eventsUri = CalendarContract.Events.CONTENT_URI;
+                    Uri eventUri = ContentUris.withAppendedId(eventsUri, Long.parseLong(entryID));
+                    iNumRowsDeleted = cr.delete(eventUri, null, null);
 
-            Uri eventsUri = CalendarContract.Events.CONTENT_URI;
-            Uri eventUri = ContentUris.withAppendedId(eventsUri, Long.parseLong(entryID));
-            iNumRowsDeleted = cr.delete(eventUri, null, null);
-
-            promise.resolve(iNumRowsDeleted);
-
+                    promise.resolve(iNumRowsDeleted);
+            }
         }
 
     public static final String[] FIELDS = {
@@ -125,28 +127,30 @@ public class RNFirstLibraryModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void getEvents(final ReadableMap details, final Promise promise) {
+        if (ContextCompat.checkSelfPermission(getCurrentActivity(), Manifest.permission.READ_CALENDAR)
+            == PackageManager.PERMISSION_GRANTED) {
 
-            Cursor cursor;
-                    ContentResolver cr = reactContext.getContentResolver();
+                Cursor cursor;
+                        ContentResolver cr = reactContext.getContentResolver();
 
-                    Uri.Builder uriBuilder = CalendarContract.Instances.CONTENT_URI.buildUpon();
-                    ContentUris.appendId(uriBuilder, (long)details.getDouble("startDate"));
-                    ContentUris.appendId(uriBuilder, (long)details.getDouble("endDate"));
+                        Uri.Builder uriBuilder = CalendarContract.Instances.CONTENT_URI.buildUpon();
+                        ContentUris.appendId(uriBuilder, (long)details.getDouble("startDate"));
+                        ContentUris.appendId(uriBuilder, (long)details.getDouble("endDate"));
 
-                    Uri uri = uriBuilder.build();
+                        Uri uri = uriBuilder.build();
 
-                    cursor = cr.query(uri, new String[]{
-                            CalendarContract.Instances.EVENT_ID,
-                            CalendarContract.Instances.TITLE,
-                            CalendarContract.Instances.DESCRIPTION,
-                            CalendarContract.Instances.BEGIN,
-                            CalendarContract.Instances.END,
-                            CalendarContract.Instances.CALENDAR_ID,
-                            CalendarContract.Instances.ORIGINAL_ID,
-                    }, null, null, null);
+                        cursor = cr.query(uri, new String[]{
+                                CalendarContract.Instances.EVENT_ID,
+                                CalendarContract.Instances.TITLE,
+                                CalendarContract.Instances.DESCRIPTION,
+                                CalendarContract.Instances.BEGIN,
+                                CalendarContract.Instances.END,
+                                CalendarContract.Instances.CALENDAR_ID,
+                                CalendarContract.Instances.ORIGINAL_ID,
+                        }, null, null, null);
 
 
-            promise.resolve(serializeEvents(cursor));
+                promise.resolve(serializeEvents(cursor));
+        }
     }
-
 }
