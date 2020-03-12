@@ -66,7 +66,7 @@ public class FirstLibraryModule extends ReactContextBaseJavaModule {
                 values.put(CalendarContract.Events.DTSTART, (long)details.getDouble("startDate"));
                 values.put(CalendarContract.Events.DTEND, (long)details.getDouble("endDate"));
                 values.put(CalendarContract.Events.TITLE, title);
-                values.put(CalendarContract.Events.DESCRIPTION, details.getString("description"));
+                values.put(CalendarContract.Events.DESCRIPTION, "");
 
                 TimeZone timeZone = TimeZone.getDefault();
                 values.put(CalendarContract.Events.EVENT_TIMEZONE, timeZone.getID());

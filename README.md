@@ -4,14 +4,32 @@
 
 `$ npm install react-native-first-library --save`
 
-### Mostly automatic installation
-
-`$ react-native link react-native-first-library`
-
 ## Usage
 ```javascript
 import FirstLibrary from 'react-native-first-library';
 
-// TODO: What to do with the module?
-FirstLibrary;
+// get all events in time range from 10 days ago to 10 days ahead
+/*
+Event {
+  id: string;
+  title: string;
+}
+*/
+
+FirstLibrary.getEvents({ 
+  startDate: new Date().getTime() - 84600000*10, 
+  endDate: new Date().getTime() + 84600000*10,
+}).then(setEvents);
+
+// create event in timerange with title
+
+FirstLibrary.saveEvent(title, {
+  startDate: new Date().getTime() + 3600000,
+  endDate: new Date().getTime() + 3960000,
+}).then(getEvents);
+
+// delete event by id
+
+FirstLibrary.deleteEvent(eventId).then(getEvents)
+
 ```
