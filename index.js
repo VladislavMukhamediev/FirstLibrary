@@ -1,7 +1,5 @@
-
 import { NativeModules } from 'react-native';
 
-const { RNFirstLibrary } = NativeModules;
+const { FirstLibrary } = NativeModules;
 
-
-export default RNFirstLibrary;
+export default FirstLibrary;

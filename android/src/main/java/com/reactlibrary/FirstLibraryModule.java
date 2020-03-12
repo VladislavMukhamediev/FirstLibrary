@@ -78,14 +78,14 @@ public class RNFirstLibraryModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-        public void deleteEvent(int entryID, final Promise promise) {
+        public void deleteEvent(String entryID, final Promise promise) {
 
 
             ContentResolver cr = reactContext.getContentResolver();
             int iNumRowsDeleted = 0;
 
             Uri eventsUri = CalendarContract.Events.CONTENT_URI;
-            Uri eventUri = ContentUris.withAppendedId(eventsUri, entryID);
+            Uri eventUri = ContentUris.withAppendedId(eventsUri, Long.parseLong(entryID));
             iNumRowsDeleted = cr.delete(eventUri, null, null);
 
             promise.resolve(iNumRowsDeleted);
