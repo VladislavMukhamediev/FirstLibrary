@@ -4,17 +4,17 @@
 
 `$ npm install react-native-first-library --save`
 
+### Android add permission to manifest
+
+`<uses-permission android:name="android.permission.READ_CALENDAR" />`
+
+ `<uses-permission android:name="android.permission.WRITE_CALENDAR" />`
+
 ## Usage
 ```javascript
 import FirstLibrary from 'react-native-first-library';
 
 // get all events in time range from 10 days ago to 10 days ahead
-/*
-Event {
-  id: string;
-  title: string;
-}
-*/
 
 FirstLibrary.getEvents({ 
   startDate: new Date().getTime() - 84600000*10, 
